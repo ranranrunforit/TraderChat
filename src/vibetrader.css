@@ -1,0 +1,290 @@
+@import "theme.css";
+
+:root {
+    --positive-color: #FF0000B4;
+    --negative-color: #00AA00B4;
+    --neutral-color: #00F0F0B4;
+
+    --annot-color-g: #009000;
+    --annot-color-r: #FF0000;
+    --annot-color-c: #00A0A0;
+    --annot-color-n: #ffa500;
+
+    --annot-text-color-1: #ffffff;
+    --annot-text-color-2: #ffffff;
+
+    @media (prefers-color-scheme: dark) {
+        &:has(#color-scheme option[value="system"]:checked) {
+            --positive-color: #00AA00;
+            --negative-color: #FF0000;
+            --neutral-color: #00F0F0;
+
+            --annot-color-g: #00F000;
+            --annot-color-r: #FF0000;
+            --annot-color-c: #00F0F0;
+            --annot-color-n: #fdf6e3;
+
+            --annot-text-color-1: #000000;
+            --annot-text-color-2: #ffffff;
+        }
+    }
+
+    &:has(#color-scheme option[value="dark"]:checked) {
+        --positive-color: #00AA00;
+        --negative-color: #FF0000;
+        --neutral-color: #00F0F0;
+
+        --annot-color-g: #00F000;
+        --annot-color-r: #FF0000;
+        --annot-color-c: #00F0F0;
+        --annot-color-n: #fdf6e3;
+
+        --annot-text-color-1: #000000;
+        --annot-text-color-2: #ffffff;
+    }
+}
+
+.viewcontainer {
+    /* grow: 1, shrink: 1, basis: 900px */
+    flex: 1, 1, 900px;
+    /* This forces the element to rely on flex-basis/grow for width */
+    width: 0;
+    /* ...but absolutely never shrink below 900px */
+    min-width: 900px;
+    /* CRITICAL: Prevents internal SVG from stretching the div */
+    overflow: hidden;
+
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 12px;
+    cursor: default;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.viewcontainer div.header {
+    grid-area: header;
+}
+
+.viewcontainer div.content {
+    grid-area: content;
+}
+
+.viewcontainer div.axisy {
+    grid-area: axisy;
+}
+
+.viewcontainer div.axisx {
+    grid-area: axisx;
+}
+
+.viewcontainer div.footer {
+    grid-area: footer;
+}
+
+.viewcontainer div.title {
+    position: relative;
+    border-bottom: 2px solid var(--gray-600-light);
+    color: var(--text-color);
+}
+
+.viewcontainer div.borderLeftUp {
+    border-left: 1px solid var(--gray-600-light);
+    position: absolute;
+    top: 80%;
+    bottom: 0;
+}
+
+.viewcontainer div.borderLeftDown {
+    border-left: 1px solid var(--gray-100);
+    position: absolute;
+    top: 0;
+    bottom: 80%;
+}
+
+.help {
+    opacity: 0.90;
+    background-color: var(--background-color);
+    z-index: 2;
+}
+
+.klinechart {
+    stroke: var(--positive-color);
+}
+
+.klinechart path.positive {
+    stroke: var(--positive-color);
+    fill: var(--positive-color);
+}
+
+.klinechart path.negative {
+    stroke: var(--negative-color);
+    fill: var(--negative-color);
+}
+
+.volumechart {
+    stroke: var(--positive-color);
+}
+
+.volumechart path.positive {
+    stroke: var(--positive-color);
+    fill: var(--positive-color);
+}
+
+.volumechart path.negative {
+    stroke: var(--negative-color);
+    fill: var(--negative-color);
+}
+
+.axis path {
+    stroke: var(--gray-600);
+    fill: var(--gray-600);
+    stroke-width: 0.7px;
+}
+
+.axis text {
+    fill: var(--gray-600);
+}
+
+.grid path {
+    stroke: var(--gray-600-light);
+    fill: var(--gray-600-light);
+    stroke-width: 0.5px;
+}
+
+.drawing-highlight path {
+    stroke: var(--gray-600);
+    fill: var(--gray-600);
+    stroke-width: 1px;
+}
+
+.drawing-highlight rect {
+    stroke: var(--gray-600);
+    stroke-width: 1px;
+}
+
+.drawing-highlight text {
+    fill: var(--gray-600);
+}
+
+.drawing-handle path {
+    stroke: var(--gray-600);
+    stroke-width: 1px;
+    fill: none;
+}
+
+.drawing-handle rect {
+    stroke: var(--gray-600);
+    stroke-width: 1px;
+    fill: none;
+}
+
+.drawing-handle circle {
+    stroke: var(--gray-600);
+    stroke-width: 1px;
+    fill: none;
+}
+
+.drawing-handle text {
+    fill: none;
+}
+
+
+.drawing path {
+    stroke: var(--gray-600);
+    fill: var(--gray-600);
+    stroke-width: 0.7px;
+}
+
+.drawing rect {
+    stroke: var(--gray-600);
+    stroke-width: 0.7px;
+}
+
+.drawing text {
+    fill: var(--gray-600);
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.blinking-label {
+    animation: blink 1s;
+}
+
+.label-title {
+    color: var(--annot-color-r);
+}
+
+.label-mouse {
+    color: var(--annot-color-g);
+}
+
+.label-refer {
+    color: var(--annot-color-c);
+}
+
+.annot-mouse path {
+    stroke: var(--annot-color-g);
+    fill: var(--annot-color-g);
+    stroke-width: 0.7px;
+}
+
+.annot-mouse text {
+    fill: var(--annot-text-color-1);
+}
+
+.annot-refer path {
+    stroke: var(--annot-color-c);
+    fill: var(--annot-color-c);
+    stroke-width: 0.7px;
+}
+
+.annot-refer text {
+    fill: var(--annot-text-color-1);
+}
+
+.annot-positive path {
+    stroke: var(--positive-color);
+    fill: var(--positive-color);
+    stroke-width: 0.7px;
+}
+
+.annot-positive text {
+    fill: var(--annot-text-color-1);
+}
+
+.annot-negative path {
+    stroke: var(--negative-color);
+    fill: var(--negative-color);
+    stroke-width: 0.7px;
+}
+
+.annot-negative text {
+    fill: var(--annot-text-color-2);
+}
+
+.title-value-group {
+    display: flex;
+    flex-direction: row;
+    text-align: 'left';
+    gap: 6px;
+}
+
+.title-value {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+}

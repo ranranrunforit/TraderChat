@@ -1,0 +1,90 @@
+import { Component, type JSX } from "react";
+import { Path } from "../../svg/Path";
+
+type Props = {
+    id: number,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    toward?: string,
+}
+
+type State = {
+    nothing: boolean
+}
+
+class Spacing extends Component<Props, State> {
+    chart: JSX.Element;
+
+    constructor(props: Props) {
+        super(props);
+
+        console.log("Spacing render");
+        this.chart = this.plot();
+    }
+
+    plot() {
+        const { width, height, toward } = this.props;
+        const path = new Path;
+
+        switch (toward) {
+            case "up":
+                // draw border line
+                path.moveto(0, height);
+                path.lineto(width, height);
+
+                // draw end line
+                path.moveto(0, height);
+                path.lineto(0, height - 8);
+                break;
+
+            case "down":
+                // draw border line
+                path.moveto(0, 0);
+                path.lineto(width, 0);
+
+                // draw end line
+                path.moveto(0, 0);
+                path.lineto(0, 8);
+                break;
+
+            default:
+                // it seems we have to draw something to occupy the space, at least for Firefox
+                path.opacity = 0.0;
+
+                path.moveto(0, 0);
+                path.lineto(width, 0);
+
+                path.moveto(0, 0);
+                path.lineto(0, 8);
+        }
+
+        return path.render()
+    }
+
+    render() {
+        const transform = `translate(${this.props.x} ${this.props.y})`;
+        return (
+            <g transform={transform} className="axis">
+                {this.chart}
+            </g>
+        )
+    }
+
+    shouldComponentUpdate(nextProps: Props, nextState: State) {
+        if (
+            this.props.x !== nextProps.x ||
+            this.props.y !== nextProps.y ||
+            this.props.width !== nextProps.width ||
+            this.props.height !== nextProps.height ||
+            this.props.toward !== nextProps.toward
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+export default Spacing;

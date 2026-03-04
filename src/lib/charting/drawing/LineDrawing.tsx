@@ -1,0 +1,57 @@
+import { Path } from "../../svg/Path"
+import { ChartView } from "../view/ChartView";
+import { Drawing } from "./Drawing"
+
+export class LineDrawing extends Drawing {
+    isExtended: boolean = true
+
+    override init() {
+        this.nHandles = 2;
+    }
+
+    override hits(x: number, y: number): boolean {
+        if (x > this.xc.wChart) {
+            return false
+        }
+
+        const x0 = this.xt(this.handles[0])
+        const x1 = this.xt(this.handles[1])
+
+        const y0 = this.yv(this.handles[0])
+        const y1 = this.yv(this.handles[1])
+
+        const dx = x1 - x0
+        const dy = y1 - y0
+        const k = dx === 0 ? 1 : dy / dx
+
+        const distance = this.distanceToLine(x, y, x0, y0, k)
+
+        return distance <= 4
+    }
+
+    override plotDrawing() {
+        const path = new Path()
+
+        const x0 = this.xt(this.handles[0])
+        const x1 = this.xt(this.handles[1])
+
+        const y0 = this.yv(this.handles[0])
+        const y1 = this.yv(this.handles[1])
+
+        if (this.isExtended) {
+            const dx = x1 - x0
+            const dy = y1 - y0
+            const k = dx === 0 ? 1 : dy / dx
+
+            this.plotLine(x0, y0, k, path)
+
+        } else {
+            path.moveto(x0, y0);
+            path.lineto(x1, y1);
+        }
+
+        return [path];
+    }
+
+}
+
