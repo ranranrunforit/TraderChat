@@ -535,4 +535,7 @@
     letter-spacing: 0.04em;
     margin-right: 4px;
     user-select: none;
+    border: none;
+    outline: none;
+    text-align: center;
 }

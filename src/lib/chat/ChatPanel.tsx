@@ -133,7 +133,7 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedModel, setSelectedModel] = useState('gemini-3-flash');
+    const [selectedModel, setSelectedModel] = useState('gemini-3.1-pro');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -179,9 +179,14 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
         }
 
         try {
+            // Timeout: abort if model takes too long (90s)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 90_000);
+
             const resp = await fetch(`${baseUrl}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
                 body: JSON.stringify({
                     messages: updatedMessages.map(m => ({ role: m.role, content: m.content })),
                     model: selectedModel,
@@ -192,6 +197,7 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
                     } : undefined,
                 }),
             });
+            clearTimeout(timeoutId);
 
             if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
 
@@ -244,7 +250,16 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
                                     const timeframe = (data.timeframe as string) || '1D';
                                     const scripts = data.scripts as string[];
                                     onRunPineScript?.(symbol, timeframe, scripts);
-                                    assistantMsg.content += `\n> 🎨 **Drawing custom indicators on ${symbol} chart**\n`;
+                                    // Show the Pine Script code in the progress area
+                                    let scriptDisplay = `\n> 🎨 **Analyze '${symbol}' on '${timeframe}' with scripts:**\n\n`;
+                                    for (const script of scripts) {
+                                        // Show first 15 lines of each script as a preview
+                                        const lines = script.split('\n');
+                                        const preview = lines.slice(0, 15).join('\n');
+                                        const truncated = lines.length > 15 ? `\n// ... (${lines.length - 15} more lines)` : '';
+                                        scriptDisplay += '```pine\n' + preview + truncated + '\n```\n\n';
+                                    }
+                                    assistantMsg.content += scriptDisplay;
                                     setMessages(prev => {
                                         const updated = [...prev];
                                         updated[updated.length - 1] = { ...assistantMsg };
@@ -268,6 +283,7 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
                                     });
                                 } else if (data.type === 'error') {
                                     setError(data.content);
+                                    break;
                                 }
                             } catch { /* skip malformed */ }
                         }
@@ -275,7 +291,10 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
                 }
             }
         } catch (err: any) {
-            setError(err.message || 'Failed to connect to AI server');
+            const msg = err.name === 'AbortError'
+                ? `⏱️ Request timed out (90s). The model may be overloaded — try switching to a faster model like ⚡ 3 Flash.`
+                : (err.message || 'Failed to connect to AI server');
+            setError(msg);
         } finally {
             setIsLoading(false);
         }
@@ -412,25 +431,6 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
                         <span className="chat-header-badge">Gemini</span>
                     </div>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                        <select
-                            value={selectedModel}
-                            onChange={(e) => setSelectedModel(e.target.value)}
-                            style={{
-                                background: 'rgba(255,255,255,0.1)',
-                                color: 'inherit',
-                                border: '1px solid rgba(255,255,255,0.2)',
-                                borderRadius: 4,
-                                padding: '2px 4px',
-                                fontSize: 11,
-                                cursor: 'pointer',
-                                outline: 'none',
-                            }}
-                            title="Switch AI model"
-                        >
-                            <option value="gemini-3-flash" style={{ background: '#1a1a2e' }}>⚡ Flash</option>
-                            <option value="gemini-3-pro" style={{ background: '#1a1a2e' }}>🧠 3 Pro</option>
-                            <option value="gemini-3.1-pro" style={{ background: '#1a1a2e' }}>🚀 3.1 Pro</option>
-                        </select>
                         {messages.length > 0 && (
                             <button className="chat-header-close" onClick={clearChat} title="Clear chat">
                                 🗑
@@ -480,7 +480,27 @@ export default function ChatPanel({ chartContext, apiUrl, onChartUpdate, onRunPi
                     />
                     {/* Icon toolbar — matching reference image */}
                     <div className="chat-input-icons">
-                        <span className="chat-icon-badge">{selectedModel === 'gemini-3-flash' ? 'Flash' : selectedModel === 'gemini-3-pro' ? 'Pro' : '3.1 Pro'}</span>
+                        <select
+                            className="chat-icon-badge"
+                            value={selectedModel}
+                            onChange={(e) => setSelectedModel(e.target.value)}
+                            style={{
+                                appearance: 'none',
+                                WebkitAppearance: 'none',
+                                MozAppearance: 'none',
+                                cursor: 'pointer',
+                                paddingRight: 14,
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath fill='%23fff' d='M0 0l4 5 4-5z'/%3E%3C/svg%3E")`,
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'right 4px center',
+                                backgroundSize: '6px',
+                            }}
+                            title="Switch AI model"
+                        >
+                            <option value="gemini-3.1-pro" style={{ background: '#1a1a2e' }}>🚀 3.1 Pro</option>
+                            <option value="gemini-3-pro" style={{ background: '#1a1a2e' }}>🧠 3 Pro</option>
+                            <option value="gemini-3-flash" style={{ background: '#1a1a2e' }}>⚡ 3 Flash</option>
+                        </select>
                         <button type="button" className="chat-icon-btn" onClick={clearChat} title="清除 / Clear">🔄</button>
                         <button type="button" className="chat-icon-btn" onClick={clearChat} title="清空 / Reset">🗑️</button>
                         <button type="submit" className="chat-send-btn" disabled={!input.trim() || isLoading} title="发送 / Send">➤</button>
