@@ -1,0 +1,32 @@
+//@version=5
+indicator("AAPL Structural Lines & Fills", overlay=true)
+
+// Pivot Points (Using build-in logic)
+ph = ta.pivothigh(high, 10, 10)
+pl = ta.pivotlow(low, 10, 10)
+
+// Storage for Lines
+var line resLine = na
+var line supLine = na
+
+// Logic for Resistance Line
+if not na(ph)
+    line.delete(resLine)
+    resLine := line.new(bar_index[10], ph, bar_index + 10, ph, color=color.new(color.red, 0), width=2)
+
+// Logic for Support Line
+if not na(pl)
+    line.delete(supLine)
+    supLine := line.new(bar_index[10], pl, bar_index + 10, pl, color=color.new(color.green, 0), width=2)
+
+// Using linefill to visualize the Trading Zone
+if not na(resLine) and not na(supLine)
+    linefill.new(resLine, supLine, color.new(color.gray, 90))
+
+// VWAP for additional context
+vwapVal = ta.vwap(close)
+plot(vwapVal, "VWAP", color.orange, 2)
+
+plotshape(ph, style=shape.labeldown, location=location.abovebar, color=color.red, text="Res", textcolor=color.white)
+plotshape(pl, style=shape.labelup, location=location.belowbar, color=color.green, text="Sup", textcolor=color.white)
+

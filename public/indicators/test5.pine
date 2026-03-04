@@ -1,0 +1,20 @@
+//@version=6
+indicator("Trend Analysis", overlay=true)
+
+// Calculate EMAs
+ema20 = ta.ema(close, 20)
+ema50 = ta.ema(close, 50)
+
+// Plot EMAs
+plot(ema20, color=color.blue, title="EMA 20", linewidth=2)
+plot(ema50, color=color.orange, title="EMA 50", linewidth=2)
+
+// RSI Calculation and Plotting (using plotchar for visualization on main chart)
+rsiVal = ta.rsi(close, 14)
+
+// Simple visual signals
+isBullish = close > ema20
+plotshape(isBullish, style=shape.square, location=location.belowbar, color=color.green, size=size.small, title="Above EMA20")
+plotshape(not isBullish, style=shape.square, location=location.abovebar, color=color.red, size=size.small, title="Below EMA20")
+
+plotchar(rsiVal, "RSI", "", location.top, color=color.white)

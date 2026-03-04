@@ -1,0 +1,22 @@
+//@version=6
+indicator("Institutional View: CMF & SuperTrend", overlay=false)
+
+// --- 1. SuperTrend (Overlay logic but plotted separately for clarity here) ---
+[supertrend, direction] = ta.supertrend(3.0, 10)
+plot(close, title="Price", color=color.gray, linewidth=1, display=display.none) // Hidden price for scale
+plot(supertrend, title="SuperTrend Level", color=direction == 1 ? color.red : color.green, linewidth=2)
+
+// --- 2. Chaikin Money Flow (CMF) ---
+cmf_len = 20
+ad = close==high and close==low or high==low ? 0 : ((2*close-low-high)/(high-low))*volume
+mf = math.sum(ad, cmf_len) / math.sum(volume, cmf_len)
+plot(mf, color=#43A047, title="CMF", linewidth=2)
+hline(0, color=color.black, linestyle=hline.style_dashed)
+
+// Color CMF columns
+plot(mf, style=plot.style_columns, color=mf >= 0 ? color.new(color.green, 70) : color.new(color.red, 70))
+
+// --- 3. ATR (Volatility) ---
+atr_len = 14
+atr = ta.atr(atr_len)
+plot(atr * 10, color=color.purple, title="ATR (x10 for visibility)", linewidth=1) // Scaled up to fit pane

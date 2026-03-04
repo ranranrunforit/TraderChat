@@ -1,0 +1,9 @@
+//@version=6
+indicator("Parabolic SAR & ATR/CMF", overlay=true)
+
+// Parabolic SAR
+start = 0.02
+increment = 0.02
+maximum = 0.2
+sarVal = ta.sar(start, increment, maximum)
+plot(sarVal, "Parabolic SAR", style=plot.style_cross, color=sarVal < close ? color.green : color.red, linewidth=2)

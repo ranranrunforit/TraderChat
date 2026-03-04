@@ -1,0 +1,40 @@
+// //@version=5
+// indicator("Auto Pivot Trendlines", overlay=true, max_lines_count=100)
+// len = 10
+// ph = ta.pivothigh(high, len, len)
+// pl = ta.pivotlow(low, len, len)
+
+// var int ph_x = na
+// var float ph_y = na
+// var int pl_x = na
+// var float pl_y = na
+
+// if not na(ph)
+//     if not na(ph_x)
+//         line.new(ph_x, ph_y, bar_index[len], ph, color=color.red, width=2)
+//     ph_x := bar_index[len]
+//     ph_y := ph
+
+// if not na(pl)
+//     if not na(pl_x)
+//         line.new(pl_x, pl_y, bar_index[len], pl, color=color.green, width=2)
+//     pl_x := bar_index[len]
+//     pl_y := pl
+
+//@version=5
+indicator("Auto Pivot Support & Resistance", overlay=true, max_lines_count=50)
+
+leftLen = 15
+rightLen = 15
+
+ph = ta.pivothigh(high, leftLen, rightLen)
+pl = ta.pivotlow(low, leftLen, rightLen)
+
+if not na(ph)
+    line.new(bar_index[rightLen], ph, bar_index, ph, color=color.red, width=2, extend=extend.right, style=line.style_solid)
+
+if not na(pl)
+    line.new(bar_index[rightLen], pl, bar_index, pl, color=color.green, width=2, extend=extend.right, style=line.style_solid)
+
+// Add some basic moving averages for context
+plot(ta.sma(close, 50), color=color.blue, title="SMA 50")

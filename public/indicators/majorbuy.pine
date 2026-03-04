@@ -1,0 +1,14 @@
+//@version=5
+indicator("Major Buy Setup", overlay=true)
+sma20 = ta.sma(close, 20)
+sma50 = ta.sma(close, 50)
+plot(sma20, color=color.blue, title="SMA 20")
+plot(sma50, color=color.orange, title="SMA 50")
+
+bull_engulfing = close > open and close[1] < open[1] and close >= open[1] and open <= close[1]
+upper_shadow = high - close
+range_ = high - low
+bald_bull = close > open and upper_shadow <= range_ * 0.05
+major_buy = bull_engulfing and bald_bull
+plotshape(major_buy, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.large, text="BUY")
+

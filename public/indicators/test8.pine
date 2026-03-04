@@ -1,0 +1,24 @@
+//@version=6
+indicator("Supertrend Strategy", overlay=true)
+
+// Supertrend settings
+atrPeriod = 10
+factor = 3.0
+[supertrend, direction] = ta.supertrend(factor, atrPeriod)
+
+// EMA 200 for trend filter
+ema200 = ta.ema(close, 200)
+plot(ema200, color=color.blue, title="EMA 200", linewidth=2)
+
+// Plot Supertrend
+bodyMiddle = plot((open + close) / 2, display=display.none)
+upTrend = plot(direction < 0 ? supertrend : na, "Up Trend", color = color.green, style=plot.style_linebr)
+downTrend = plot(direction < 0? na : supertrend, "Down Trend", color = color.red, style=plot.style_linebr)
+
+// Fill background
+fill(bodyMiddle, upTrend, color.new(color.green, 90), fillgaps=false)
+fill(bodyMiddle, downTrend, color.new(color.red, 90), fillgaps=false)
+
+// Buy/Sell Signals
+plotshape(direction < 0 and direction[1] > 0, title="Buy", style=shape.labelup, location=location.belowbar, color=color.green, text="BUY", textcolor=color.white, size=size.small)
+plotshape(direction > 0 and direction[1] < 0, title="Sell", style=shape.labeldown, location=location.abovebar, color=color.red, text="SELL", textcolor=color.white, size=size.small)

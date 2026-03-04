@@ -1,0 +1,13 @@
+//@version=5
+indicator("Fair Value Gaps (FVG)", overlay=true, max_lines_count=100)
+bull_fvg = low > high[2] and close[1] > open[1]
+bear_fvg = high < low[2] and close[1] < open[1]
+
+if bull_fvg
+    line.new(bar_index[2], high[2], bar_index + 20, high[2], color=color.green, width=2)
+    line.new(bar_index, low, bar_index + 20, low, color=color.green, width=1, style=line.style_dashed)
+    
+if bear_fvg
+    line.new(bar_index[2], low[2], bar_index + 20, low[2], color=color.red, width=2)
+    line.new(bar_index, high, bar_index + 20, high, color=color.red, width=1, style=line.style_dashed)
+plot(close, color=color.new(color.white, 100))

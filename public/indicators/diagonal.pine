@@ -1,0 +1,27 @@
+//@version=5
+indicator("Auto Diagonal Trendlines", overlay=true, max_lines_count=50)
+len = 15
+ph = ta.pivothigh(high, len, len)
+pl = ta.pivotlow(low, len, len)
+
+var float ph1 = na, var int pb1 = na
+var float ph2 = na, var int pb2 = na
+var float pl1 = na, var int lb1 = na
+var float pl2 = na, var int lb2 = na
+
+if not na(ph)
+    ph2 := ph1, pb2 := pb1
+    ph1 := ph, pb1 := bar_index[len]
+    if not na(ph2)
+        slope = (ph1 - ph2) / (pb1 - pb2)
+        line.new(pb2, ph2, pb1, ph1, color=color.red, width=2)
+        line.new(pb1, ph1, pb1 + 50, ph1 + slope * 50, color=color.red, width=1, style=line.style_dashed)
+
+if not na(pl)
+    pl2 := pl1, lb2 := lb1
+    pl1 := pl, lb1 := bar_index[len]
+    if not na(pl2)
+        slope = (pl1 - pl2) / (lb1 - lb2)
+        line.new(lb2, pl2, lb1, pl1, color=color.green, width=2)
+        line.new(lb1, pl1, lb1 + 50, pl1 + slope * 50, color=color.green, width=1, style=line.style_dashed)
+plot(close, color=color.new(color.white, 100))

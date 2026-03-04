@@ -1,0 +1,41 @@
+//@version=5
+indicator("Fibonacci Speed Fan & Time Zones (line.*)", overlay=true, max_lines_count=200)
+
+var int lookback = 100
+if barstate.islast
+    float hh = ta.highest(high, lookback)
+    float ll = ta.lowest(low, lookback)
+    int hh_bar = bar_index + ta.highestbars(high, lookback)
+    int ll_bar = bar_index + ta.lowestbars(low, lookback)
+    
+    // Determine the primary swing
+    int start_bar = ll_bar
+    float start_price = ll
+    int end_bar = hh_bar
+    float end_price = hh
+    
+    // 1. Fib Speed Resistance Fan (Lines from start to specific vertical heights at end_bar)
+    array<float> fib_levels = array.from(0.236, 0.382, 0.5, 0.618, 0.786)
+    array<color> fib_colors = array.from(color.red, color.orange, color.yellow, color.green, color.blue)
+    
+    float price_diff = end_price - start_price
+    
+    // Draw the main trendline (White)
+    line.new(start_bar, start_price, end_bar, end_price, color=color.white, width=2, extend=extend.right)
+    
+    // Draw Fan Lines
+    for i = 0 to array.size(fib_levels) - 1
+        float lvl = array.get(fib_levels, i)
+        color col = array.get(fib_colors, i)
+        float target_price = start_price + price_diff * lvl
+        line.new(start_bar, start_price, end_bar, target_price, color=col, width=1, style=line.style_solid, extend=extend.right)
+        
+    // 2. Fibonacci Time Zones (Vertical lines)
+    array<int> fib_time = array.from(8, 13, 21, 34, 55, 89)
+    for i = 0 to array.size(fib_time) - 1
+        int t_offset = array.get(fib_time, i)
+        int t_bar = start_bar + t_offset
+        if t_bar <= bar_index + 30 
+            line.new(t_bar, ll, t_bar, hh, color=color.new(color.gray, 50), width=1, style=line.style_dashed, extend=extend.both)
+
+plot(close, color=color.new(color.blue, 100))

@@ -1,0 +1,43 @@
+//@version=6
+indicator("VibeTrader Signal System", overlay=true)
+
+// --- Supertrend Strategy ---
+atrPeriod = 10
+factor = 3.0
+[supertrend, direction] = ta.supertrend(factor, atrPeriod)
+
+bodyMiddle = plot((open + close) / 2, display=display.none)
+upTrend = plot(direction < 0 ? supertrend : na, "Up Trend", color = color.green, style=plot.style_linebr)
+downTrend = plot(direction < 0? na : supertrend, "Down Trend", color = color.red, style=plot.style_linebr)
+
+fill(bodyMiddle, upTrend, color.new(color.green, 90), fillgaps=false)
+fill(bodyMiddle, downTrend, color.new(color.red, 90), fillgaps=false)
+
+// --- Bollinger Bands + RSI Reversal Strategy ---
+length = 20
+mult = 2.0
+src = close
+basis = ta.sma(src, length)
+dev = mult * ta.stdev(src, length)
+upper = basis + dev
+lower = basis - dev
+
+rsiVal = ta.rsi(src, 14)
+
+// Conditions
+// 1. Supertrend Trend Change
+trendBuy = ta.crossover(close, supertrend)
+trendSell = ta.crossunder(close, supertrend)
+
+// 2. Reversal (Price below Lower BB & RSI < 30) or (Price above Upper BB & RSI > 70)
+reversalBuy = close < lower and rsiVal < 30
+reversalSell = close > upper and rsiVal > 70
+
+// Plotting Signals
+plotshape(trendBuy, title="Trend Buy", style=shape.labelup, location=location.belowbar, color=color.green, text="BUY", textcolor=color.white, size=size.small)
+plotshape(trendSell, title="Trend Sell", style=shape.labeldown, location=location.abovebar, color=color.red, text="SELL", textcolor=color.white, size=size.small)
+
+// Plotting Reversal dots (secondary signals)
+plotshape(reversalBuy, title="Oversold Buy", style=shape.circle, location=location.belowbar, color=color.lime, size=size.tiny)
+plotshape(reversalSell, title="Overbought Sell", style=shape.circle, location=location.abovebar, color=color.maroon, size=size.tiny)
+

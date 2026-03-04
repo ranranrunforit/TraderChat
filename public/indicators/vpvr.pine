@@ -1,0 +1,40 @@
+//@version=6
+indicator("Volume Profile (Simulated)", overlay=true, max_lines_count=500)
+
+// Parameters
+rows = 50
+lookback = 200 // Number of bars to analyze
+
+// Calculate Volume Profile
+if barstate.islast
+    float max_vol = 0.0
+    float highest_high = high
+    float lowest_low = low
+    
+    // Find highest high and lowest low over the lookback period
+    for i = 0 to lookback - 1
+        highest_high := math.max(highest_high, high[i])
+        lowest_low := math.min(lowest_low, low[i])
+    
+    // Initialize volume array
+    float[] vol_array = array.new_float(rows, 0.0)
+    float price_step = (highest_high - lowest_low) / rows
+    
+    // Distribute volume into bins
+    for i = 0 to lookback - 1
+        int bin = math.floor((close[i] - lowest_low) / price_step)
+        if bin >= 0 and bin < rows
+            float current_vol = array.get(vol_array, bin)
+            float new_vol = current_vol + volume[i]
+            array.set(vol_array, bin, new_vol)
+            max_vol := math.max(max_vol, new_vol)
+            
+    // Draw the profile
+    for i = 0 to rows - 1
+        float vol = array.get(vol_array, i)
+        if vol > 0
+            float width = (vol / max_vol) * 100 // Scale width
+            // Calculate bar coordinates
+            price_level = lowest_low + (i * price_step)
+            // Draw horizontal line representing the volume bar
+            line.new(x1=bar_index, y1=price_level, x2=bar_index - int(width), y2=price_level, color=color.new(color.blue, 50), width=4)

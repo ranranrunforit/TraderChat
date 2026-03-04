@@ -1,0 +1,24 @@
+//@version=6
+indicator("RSI Divergence Detector", overlay=false)
+
+// RSI Calculation
+len = 14
+src = close
+up = ta.rma(math.max(ta.change(src), 0), len)
+down = ta.rma(-math.min(ta.change(src), 0), len)
+rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
+plot(rsi, "RSI", color=#7E57C2)
+hline(70, "Overbought", color=#787B86, linestyle=hline.style_dotted)
+hline(30, "Oversold", color=#787B86, linestyle=hline.style_dashed)
+
+// Divergence Logic
+// We use a simple pivot detection to find local lows
+lookback = 5
+pl = ta.pivotlow(src, lookback, lookback)
+rsi_pl = ta.pivotlow(rsi, lookback, lookback)
+
+// Detect Bullish Divergence: Price Lower Low, RSI Higher Low
+// Note: This is a simplified detection for visual aid
+bullish_div = not na(pl) and (src[lookback] < src[lookback + 20]) and (rsi[lookback] > rsi[lookback + 20])
+
+plotshape(bullish_div, title="Bullish Divergence", style=shape.labelup, location=location.bottom, color=color.green, text="BULL", textcolor=color.white, offset=-lookback)

@@ -1,0 +1,44 @@
+//@version=6
+// 主图指标：SuperTrend & Pivot Points
+indicator("SuperTrend & Pivots", overlay=true)
+
+// SuperTrend
+atrPeriod = 10
+factor = 3.0
+[supertrend, direction] = ta.supertrend(factor, atrPeriod)
+bodyMiddle = plot((open + close) / 2, display=display.none)
+upTrend = plot(direction < 0 ? supertrend : na, "Up Trend", color = color.green, style=plot.style_linebr)
+downTrend = plot(direction < 0? na : supertrend, "Down Trend", color = color.red, style=plot.style_linebr)
+fill(bodyMiddle, upTrend, color.new(color.green, 90), fillgaps=false)
+fill(bodyMiddle, downTrend, color.new(color.red, 90), fillgaps=false)
+
+// Pivot Points (Auto - Traditional)
+// 简单的日线级别枢轴点计算 (基于前一日数据)
+h = request.security(syminfo.tickerid, "D", high[1])
+l = request.security(syminfo.tickerid, "D", low[1])
+c = request.security(syminfo.tickerid, "D", close[1])
+
+p = (h + l + c) / 3
+r1 = 2 * p - l
+s1 = 2 * p - h
+r2 = p + (h - l)
+s2 = p - (h - l)
+
+// 仅绘制最近的 Pivot 线以避免图表混乱
+var line line_p = na
+var line line_r1 = na
+var line line_s1 = na
+
+if barstate.islast
+    line.delete(line_p)
+    line.delete(line_r1)
+    line.delete(line_s1)
+    line_p := line.new(bar_index - 10, p, bar_index + 10, p, color=color.orange, width=1, style=line.style_dashed)
+    line_r1 := line.new(bar_index - 10, r1, bar_index + 10, r1, color=color.red, width=1, style=line.style_dashed)
+    line_s1 := line.new(bar_index - 10, s1, bar_index + 10, s1, color=color.green, width=1, style=line.style_dashed)
+
+    // 使用 label 显示文字 (Pine Script v5/v6 label is supported)
+    label.new(bar_index + 11, p, "P", style=label.style_none, textcolor=color.orange)
+    label.new(bar_index + 11, r1, "R1", style=label.style_none, textcolor=color.red)
+    label.new(bar_index + 11, s1, "S1", style=label.style_none, textcolor=color.green)
+

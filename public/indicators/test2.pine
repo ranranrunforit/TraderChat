@@ -1,0 +1,24 @@
+//@version=6
+indicator("Trend & Momentum Analysis", overlay=true)
+
+// Calculate EMAs
+ema20 = ta.ema(close, 20)
+ema50 = ta.ema(close, 50)
+ema200 = ta.ema(close, 200)
+
+// Plot EMAs
+plot(ema20, color=color.yellow, title="EMA 20", linewidth=2)
+plot(ema50, color=color.orange, title="EMA 50", linewidth=2)
+plot(ema200, color=color.blue, title="EMA 200", linewidth=2)
+
+// Calculate RSI
+rsi = ta.rsi(close, 14)
+
+// Identify Bearish Engulfing pattern for visual aid
+isBearishEngulfing = close < open and close[1] > open[1] and close < low[1] and open > high[1]
+plotshape(isBearishEngulfing, style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small, title="Bearish Engulfing")
+
+// Label for RSI
+var label rsiLabel = na
+label.delete(rsiLabel)
+rsiLabel := label.new(bar_index, high + (high - low)*0.5, text="RSI: " + str.tostring(rsi, "#.##"), color=color.new(color.white, 100), textcolor=color.white)

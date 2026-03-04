@@ -1,0 +1,22 @@
+//@version=6
+indicator("MACD", overlay=false)
+
+// MACD Inputs
+fast_length = 12
+slow_length = 26
+signal_length = 9
+
+// Calculation
+[macdLine, signalLine, histLine] = ta.macd(close, fast_length, slow_length, signal_length)
+
+// Plotting
+plot(macdLine, color=color.blue, title="MACD Line")
+plot(signalLine, color=color.orange, title="Signal Line")
+
+// Histogram with color based on value
+histColor = histLine >= 0 ? (histLine > histLine[1] ? #26A69A : #B2DFDB) : (histLine < histLine[1] ? #EF5350 : #FFCDD2)
+plot(histLine, color=histColor, style=plot.style_columns, title="Histogram")
+hline(0, "Zero Line", color=color.gray)
+
+//plotchar(hist >= 0 and hist[1] < hist, title = "Bullish", style = shape.triangleup, location = location.belowbar, color = #26A69A)
+//plotshape(hist >= 0 and hist[1] < hist, title = "Bullish", style = shape.triangleup, location = location.belowbar, color = #26A69A)

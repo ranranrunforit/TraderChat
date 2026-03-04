@@ -1,0 +1,32 @@
+//@version=6
+// This script plots Parabolic SAR and Stochastic RSI
+indicator("Parabolic SAR + Stoch RSI", overlay=true)
+
+// Parabolic SAR
+start = 0.02
+increment = 0.02
+maximum = 0.2
+psar = ta.sar(start, increment, maximum)
+plot(psar, "Parabolic SAR", style=plot.style_cross, color=#2962FF)
+
+// Stochastic RSI (We need to create a visual signal on the chart or plot it in a separate pane. 
+// Since overlay=true, we can't plot the oscillator lines nicely on the main chart. 
+// Strategy: I will plot "Sell" shapes when Stoch RSI crosses down in overbought area, and "Buy" shapes for oversold cross up.
+// This is more actionable for the user.)
+
+// Stoch RSI Calculation
+smoothK = 3
+smoothD = 3
+lengthRSI = 14
+lengthStoch = 14
+src = close
+rsi1 = ta.rsi(src, lengthRSI)
+k = ta.sma(ta.stoch(rsi1, rsi1, rsi1, lengthStoch), smoothK)
+d = ta.sma(k, smoothD)
+
+// Signals
+sellSignal = ta.crossunder(k, d) and (k > 80)
+buySignal = ta.crossover(k, d) and (k < 20)
+
+plotshape(sellSignal, title="StochRSI Sell", location=location.abovebar, color=color.red, style=shape.arrowdown, text="S", textcolor=color.white, size=size.small)
+plotshape(buySignal, title="StochRSI Buy", location=location.belowbar, color=color.green, style=shape.arrowup, text="B", textcolor=color.white, size=size.small)

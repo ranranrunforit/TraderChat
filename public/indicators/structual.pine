@@ -1,0 +1,29 @@
+//@version=6
+indicator("Structural Levels & Key Zones", overlay=true)
+
+// --- Logic for Structural Highs and Lows (Fractals) ---
+// We identify local peaks and troughs to determine market structure
+leftBars = 10
+rightBars = 10
+ph = ta.pivothigh(high, leftBars, rightBars)
+pl = ta.pivotlow(low, leftBars, rightBars)
+
+// Plotting Fractals (Key Swing Points)
+plotshape(ph, title="Structural High", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small, offset=-rightBars)
+plotshape(pl, title="Structural Low", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small, offset=-rightBars)
+
+// --- Dynamic Support & Resistance using Donchian Channels ---
+// This helps visualize the immediate trading range
+len = 20
+upper = ta.highest(len)
+lower = ta.lowest(len)
+basis = math.avg(upper, lower)
+
+plot(upper, "Resistance Zone", color=color.new(color.red, 50), linewidth=1)
+plot(lower, "Support Zone", color=color.new(color.green, 50), linewidth=1)
+plot(basis, "Mid-Term Pivot", color=color.new(color.gray, 50), style=plot.style_circles)
+
+// --- Key Moving Averages for Trend Structure ---
+// 200 EMA often acts as the major structural floor/ceiling
+ema200 = ta.ema(close, 200)
+plot(ema200, "200 EMA Structure", color=color.orange, linewidth=2)

@@ -1,0 +1,44 @@
+//@version=5
+indicator("Auto Dynamic Trendlines (line.*)", overlay=true, max_lines_count=10)
+
+length = 15 // Pivot lookback period
+
+// Get pivot points
+ph = ta.pivothigh(high, length, length)
+pl = ta.pivotlow(low, length, length)
+
+// Variables to store the last two pivot highs and their bar indices
+var float ph1_val = na
+var int   ph1_idx = na
+var float ph2_val = na
+var int   ph2_idx = na
+
+// Variables to store the last two pivot lows and their bar indices
+var float pl1_val = na
+var int   pl1_idx = na
+var float pl2_val = na
+var int   pl2_idx = na
+
+if not na(ph)
+    ph2_val := ph1_val
+    ph2_idx := ph1_idx
+    ph1_val := ph
+    ph1_idx := bar_index[length]
+
+if not na(pl)
+    pl2_val := pl1_val
+    pl2_idx := pl1_idx
+    pl1_val := pl
+    pl1_idx := bar_index[length]
+
+// Draw lines on the last bar
+if barstate.islast
+    // Resistance Trendline (Connecting last two Highs)
+    if not na(ph2_idx) and not na(ph1_idx)
+        line.new(ph2_idx, ph2_val, ph1_idx, ph1_val, color=color.red, width=2, style=line.style_solid, extend=extend.right)
+        
+    // Support Trendline (Connecting last two Lows)
+    if not na(pl2_idx) and not na(pl1_idx)
+        line.new(pl2_idx, pl2_val, pl1_idx, pl1_val, color=color.green, width=2, style=line.style_solid, extend=extend.right)
+
+plot(close, color=color.new(color.white, 100))

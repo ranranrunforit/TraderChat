@@ -1,0 +1,31 @@
+//@version=6
+indicator("Support & Resistance Levels", overlay=true)
+
+// Pivot Points High/Low
+leftBars = 15
+rightBars = 15
+ph = ta.pivothigh(leftBars, rightBars)
+pl = ta.pivotlow(leftBars, rightBars)
+
+// Plotting
+plot(ph, style=plot.style_circles, linewidth=3, color=color.red, offset=-rightBars, title="Resistance")
+plot(pl, style=plot.style_cross, linewidth=3, color=color.green, offset=-rightBars, title="Support")
+
+// Extend lines for better visualization (optional simple approach using plotchar for recent levels)
+// We will just stick to pivot points for clarity on the screenshot.
+
+// Calculate and display recent significant levels
+var float recent_res = na
+var float recent_sup = na
+
+if not na(ph)
+    recent_res := ph
+if not na(pl)
+    recent_sup := pl
+
+// Plotting horizontal lines for the most recent levels
+// Note: line.new is not supported, so we rely on the visual crosses and manual interpretation of the values.
+// We can use plot to show the 'current' active levels as a stepped line
+plot(recent_res, "Active Resistance", color=color.new(color.red, 50), style=plot.style_stepline)
+plot(recent_sup, "Active Support", color=color.new(color.green, 50), style=plot.style_stepline)
+

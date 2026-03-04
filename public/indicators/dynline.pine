@@ -1,0 +1,40 @@
+//@version=5
+indicator("AAPL Dynamic Line Analysis", overlay=true)
+
+// Find Pivots for Lines
+p_len = 10
+ph = ta.pivothigh(high, p_len, p_len)
+pl = ta.pivotlow(low, p_len, p_len)
+
+// Using line.new for Trendlines
+var line trend_down = na
+var line trend_up = na
+
+// Downward Trendline
+float ph1 = ta.valuewhen(ph, high[p_len], 0)
+float ph2 = ta.valuewhen(ph, high[p_len], 1)
+int ph1_idx = ta.valuewhen(ph, bar_index[p_len], 0)
+int ph2_idx = ta.valuewhen(ph, bar_index[p_len], 1)
+
+if not na(ph)
+    line.delete(trend_down)
+    trend_down := line.new(ph2_idx, ph2, ph1_idx, ph1, color=color.red, width=2, xloc=xloc.bar_index, extend=extend.right)
+
+// Upward Trendline
+float pl1 = ta.valuewhen(pl, low[p_len], 0)
+float pl2 = ta.valuewhen(pl, low[p_len], 1)
+int pl1_idx = ta.valuewhen(pl, bar_index[p_len], 0)
+int pl2_idx = ta.valuewhen(pl, bar_index[p_len], 1)
+
+if not na(pl)
+    line.delete(trend_up)
+    trend_up := line.new(pl2_idx, pl2, pl1_idx, pl1, color=color.green, width=2, xloc=xloc.bar_index, extend=extend.right)
+
+// Horizontal Support/Resistance via line
+if not na(ph)
+    line.new(bar_index[p_len], ph1, bar_index + 10, ph1, color=color.new(color.red, 50), width=1, style=line.style_dashed)
+
+if not na(pl)
+    line.new(bar_index[p_len], pl1, bar_index + 10, pl1, color=color.new(color.green, 50), width=1, style=line.style_dashed)
+
+plot(close, color=na)

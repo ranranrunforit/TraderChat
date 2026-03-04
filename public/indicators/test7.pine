@@ -1,0 +1,36 @@
+//@version=6
+indicator("Ichimoku & SuperTrend", overlay=true)
+
+// --- Ichimoku Cloud ---
+conversionPeriods = 9
+basePeriods = 26
+laggingSpan2Periods = 52
+displacement = 26
+
+donchian(len) => math.avg(ta.lowest(len), ta.highest(len))
+
+conversionLine = donchian(conversionPeriods)
+baseLine = donchian(basePeriods)
+leadLine1 = math.avg(conversionLine, baseLine)
+leadLine2 = donchian(laggingSpan2Periods)
+
+// Plot Lines
+plot(conversionLine, color=color.new(color.blue, 0), title="Tenkan-sen (Conversion)")
+plot(baseLine, color=color.new(color.red, 0), title="Kijun-sen (Base)")
+
+// Plot Cloud
+p1 = plot(leadLine1, offset = displacement, color=color.new(color.green, 90), title="Lead 1")
+p2 = plot(leadLine2, offset = displacement, color=color.new(color.red, 90), title="Lead 2")
+fill(p1, p2, color = leadLine1 > leadLine2 ? color.new(color.green, 80) : color.new(color.red, 80), title="Cloud")
+
+// --- SuperTrend ---
+atrPeriod = 10
+factor = 3.0
+[supertrend, direction] = ta.supertrend(factor, atrPeriod)
+
+// Plot SuperTrend
+//plot(supertrend, color = direction < 0 ? color.green : color.red, linewidth=3, title="SuperTrend")
+
+// Display Key Levels
+//plotchar(supertrend, "SuperTrend Support", "", location.absolute, color=direction < 0 ? color.green : color.red)
+//plotchar(baseLine, "Kijun-sen (Support)", "", location.absolute, color=color.red)
